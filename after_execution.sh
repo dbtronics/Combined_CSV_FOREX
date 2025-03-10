@@ -1,11 +1,10 @@
 #!/bin/bash
 
 rm -dr *data
+base="$(pwd)"
 
-# destination="/Users/dianbasit/Dropbox/Investments/Prop Farming/Reports/log"
-# base="/Users/dianbasit/Dropbox/Investments/Prop Farming/EAs/Dian-EAs/GitHub Data/Combined_CSV_FOREX"
-destination="/Users/sulemanbasit/Dropbox/Investments/Prop Farming/Reports/log"
-base="/Users/sulemanbasit/Dropbox/Investments/Prop Farming/EAs/Dian-EAs/GitHub Data/Combined_CSV_FOREX"
+destination="$HOME/Dropbox/Investments/Prop Farming/Reports/log"
+
 
 for input in [0-9]*; do
     if [[ -f $input ]]; then
@@ -17,5 +16,5 @@ for input in [0-9]*; do
 
 done
 
-cd "/Users/sulemanbasit/Dropbox/Investments/Prop Farming/Reports/log/"
-bash "/Users/sulemanbasit/Dropbox/Investments/Prop Farming/Reports/log/log2archive.sh"
+cd "$destination"
+bash "$destination/log2archive.sh"

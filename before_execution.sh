@@ -1,13 +1,11 @@
 #!/bin/bash
+# echo $base
+base="$(pwd)"
+destination="$HOME/Dropbox/Investments/Prop Farming/Reports/log"
+# # shifts entire log files from misc to logs specific directory
+cd "$destination"
+bash "$destination/misc2log.sh"
 
-# shifts entire log files from misc to logs specific directory
-cd "/Users/sulemanbasit/Dropbox/Investments/Prop Farming/Reports/log/"
-bash "/Users/sulemanbasit/Dropbox/Investments/Prop Farming/Reports/log/misc2log.sh"
-
-# destination="/Users/dianbasit/Dropbox/Investments/Prop Farming/Reports/log"
-# base="/Users/dianbasit/Dropbox/Investments/Prop Farming/EAs/Dian-EAs/GitHub Data/Combined_CSV_FOREX"
-destination="/Users/sulemanbasit/Dropbox/Investments/Prop Farming/Reports/log"
-base="/Users/sulemanbasit/Dropbox/Investments/Prop Farming/EAs/Dian-EAs/GitHub Data/Combined_CSV_FOREX"
 
 cd "$destination/"
 for folder in [0-9]*/; do  # picks all the folders

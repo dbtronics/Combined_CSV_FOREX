@@ -8,16 +8,16 @@ import os
 from PIL import Image
 
 # Load the configuration
-acct_id = '8908'
+acct_id = '0385'
 
-start_year = 2024
-end_year = 2024
+start_year = 2025
+end_year = 2025
 
-start_month = 4
-end_month = 4
+start_month = 3
+end_month = 3
 
-start_day = 15
-end_day = 19
+start_day = 3
+end_day = 7
 
 period_string = "Weekly"
 
@@ -38,7 +38,8 @@ internal_foldername = str(acct_id)+"_data"
 print(internal_foldername)
 
 # this data is for candlestick chart pattern
-time_frequency = "2H" # hourly specify
+# different options for time intervals are: "5min", "15min", "30min", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M")
+time_frequency = "2h" # hourly specify 
 output_title = str(acct_id)+"_"+str(period_string)+"_Performance("+date_extraction[0]+"-"+date_extraction[-1]+")"
 output_filename_candlestick = str(acct_id)+"_"+str(period_string)+"_Performance("+date_extraction[0]+"-"+date_extraction[-1]+")_Candlestick_Pattern.csv"
 print(output_filename_candlestick)
@@ -46,8 +47,10 @@ print(output_filename_candlestick)
 # --------------------------------------------
 
 # Part 1: Combining Multiple CSV Together
+print("\nPart 1: Combining Multiple CSV Together")
 
 ## Extract CSV According to our Inputs
+print("Extract CSV According to our Inputs")
 directory = internal_foldername
 
 csv_files = []
@@ -63,7 +66,7 @@ print(csv_files)
 df_list = []
 
 # Loop through the CSV files and load them into DataFrames
-count = 0
+# count = 0
 for file in csv_files:
     # count += 1
     # print(count)
@@ -78,6 +81,7 @@ for file in csv_files:
     #   print(f"Error reading file {file}: {e}")
 
 ## Data Cleaning
+print("Data Cleaning")
 columns_to_numbers = ["Balance", "Equity", "Delta", "% Difference",
                       "Highest Balance", "Lowest Balance",
                       "Highest Equity", "Lowest Equity",
@@ -87,10 +91,10 @@ columns_to_numbers = ["Balance", "Equity", "Delta", "% Difference",
 df_list_updated = []
 
 # go into each df csv and add the columns and calculations
-count =0
+# count =0
 for df in df_list:
-  count+=1
-  print(count)
+#   count+=1
+#   print(count)
   for col in columns_to_numbers:
     df[col] = pd.to_numeric(df[col], errors="coerce")
 
@@ -163,15 +167,18 @@ df["% Difference from Equity"] = pd.to_numeric(df["% Difference from Equity"], e
 
 df = df.sort_values(by=["Date", "Time"])
 df = df.reset_index(drop=True)
-df
+# df
 
 ## Output Combined CSV Files
+print("Output Combined CSV Files")
 df.to_csv(output_filename, index = False)
 
 # --------------------------------------------
 # Part 2: CandleStick Chart Output
+print("\nPart 2: CandleStick Chart Output")
 
 ## Combined CSV file partioned in time interval
+print("Combined CSV file partioned in time interval")
 # end_day + 1 needs to be done to get data for end_day in candlestick chart
 time_interval = pd.date_range(start=start_date, end=datetime(end_year, end_month, end_day+1), freq=time_frequency)
 
@@ -186,6 +193,7 @@ for i in range(len(time_interval)-1):
   time_partition_arraylist.append(df[(df["DateTime"]>=time_interval[i]) & (df["DateTime"]<time_interval[i+1])])
 
 ## Making a new CSV table with candlestick chart style data
+print("Making a new CSV table with candlestick chart style data")
 df_time_partition = pd.DataFrame(index=range(len(time_partition_arraylist)))
 
 # Balance
@@ -226,125 +234,103 @@ df_time_partition["% Difference from Equity Close"] = 0.0
 df_time_partition["% Difference from Equity High"] = 0.0
 df_time_partition["% Difference from Equity Low"] = 0.0
 
-
 for i in range(len(time_partition_arraylist)):
-  # df_time_partition["Time"][i] = time_interval[i+1]
-  if (len(time_partition_arraylist[i])==0):
-    if (i==0):
-      # balance
-      df_time_partition["Balance Open"][i] = df["Balance"][i]
-      df_time_partition["Balance Close"][i] = df["Balance"][i]
-      df_time_partition["Balance High"][i] = df["Balance"][i]
-      df_time_partition["Balance Low"][i] = df["Balance"][i]
+    if len(time_partition_arraylist[i]) == 0:
+        if i == 0:
+            df_time_partition.loc[i, "Balance Open"] = df.loc[i, "Balance"]
+            df_time_partition.loc[i, "Balance Close"] = df.loc[i, "Balance"]
+            df_time_partition.loc[i, "Balance High"] = df.loc[i, "Balance"]
+            df_time_partition.loc[i, "Balance Low"] = df.loc[i, "Balance"]
 
-      # equity
-      df_time_partition["Equity Open"][i] = df["Equity"][i]
-      df_time_partition["Equity Close"][i] = df["Equity"][i]
-      df_time_partition["Equity High"][i] = df["Equity"][i]
-      df_time_partition["Equity Low"][i] = df["Equity"][i]
+            df_time_partition.loc[i, "Equity Open"] = df.loc[i, "Equity"]
+            df_time_partition.loc[i, "Equity Close"] = df.loc[i, "Equity"]
+            df_time_partition.loc[i, "Equity High"] = df.loc[i, "Equity"]
+            df_time_partition.loc[i, "Equity Low"] = df.loc[i, "Equity"]
 
-      # used margin
-      df_time_partition["Used Margin Open"][i] = df["Used Margin"][i]
-      df_time_partition["Used Margin Close"][i] = df["Used Margin"][i]
-      df_time_partition["Used Margin High"][i] = df["Used Margin"][i]
-      df_time_partition["Used Margin Low"][i] = df["Used Margin"][i]
+            df_time_partition.loc[i, "Used Margin Open"] = df.loc[i, "Used Margin"]
+            df_time_partition.loc[i, "Used Margin Close"] = df.loc[i, "Used Margin"]
+            df_time_partition.loc[i, "Used Margin High"] = df.loc[i, "Used Margin"]
+            df_time_partition.loc[i, "Used Margin Low"] = df.loc[i, "Used Margin"]
 
-      # free margin
-      df_time_partition["Free Margin Open"][i] = df["Free Margin"][i]
-      df_time_partition["Free Margin Close"][i] = df["Free Margin"][i]
-      df_time_partition["Free Margin High"][i] = df["Free Margin"][i]
-      df_time_partition["Free Margin Low"][i] = df["Free Margin"][i]
+            df_time_partition.loc[i, "Free Margin Open"] = df.loc[i, "Free Margin"]
+            df_time_partition.loc[i, "Free Margin Close"] = df.loc[i, "Free Margin"]
+            df_time_partition.loc[i, "Free Margin High"] = df.loc[i, "Free Margin"]
+            df_time_partition.loc[i, "Free Margin Low"] = df.loc[i, "Free Margin"]
 
-      # % Difference from Balance
-      df_time_partition["% Difference from Balance Open"][i] = df["% Difference from Balance"][i]
-      df_time_partition["% Difference from Balance Close"][i] = df["% Difference from Balance"][i]
-      df_time_partition["% Difference from Balance High"][i] = df["% Difference from Balance"][i]
-      df_time_partition["% Difference from Balance Low"][i] = df["% Difference from Balance"][i]
+            df_time_partition.loc[i, "% Difference from Balance Open"] = df.loc[i, "% Difference from Balance"]
+            df_time_partition.loc[i, "% Difference from Balance Close"] = df.loc[i, "% Difference from Balance"]
+            df_time_partition.loc[i, "% Difference from Balance High"] = df.loc[i, "% Difference from Balance"]
+            df_time_partition.loc[i, "% Difference from Balance Low"] = df.loc[i, "% Difference from Balance"]
 
-      # % Difference from Equity
-      df_time_partition["% Difference from Equity Open"][i] = df["% Difference from Equity"][i]
-      df_time_partition["% Difference from Equity Close"][i] = df["% Difference from Equity"][i]
-      df_time_partition["% Difference from Equity High"][i] = df["% Difference from Equity"][i]
-      df_time_partition["% Difference from Equity Low"][i] = df["% Difference from Equity"][i]
+            df_time_partition.loc[i, "% Difference from Equity Open"] = df.loc[i, "% Difference from Equity"]
+            df_time_partition.loc[i, "% Difference from Equity Close"] = df.loc[i, "% Difference from Equity"]
+            df_time_partition.loc[i, "% Difference from Equity High"] = df.loc[i, "% Difference from Equity"]
+            df_time_partition.loc[i, "% Difference from Equity Low"] = df.loc[i, "% Difference from Equity"]
+        else:
+            df_time_partition.loc[i, "Balance Open"] = df_time_partition.loc[i-1, "Balance Close"]
+            df_time_partition.loc[i, "Balance Close"] = df_time_partition.loc[i-1, "Balance Close"]
+            df_time_partition.loc[i, "Balance High"] = df_time_partition.loc[i-1, "Balance Close"]
+            df_time_partition.loc[i, "Balance Low"] = df_time_partition.loc[i-1, "Balance Close"]
 
+            df_time_partition.loc[i, "Equity Open"] = df_time_partition.loc[i-1, "Equity Close"]
+            df_time_partition.loc[i, "Equity Close"] = df_time_partition.loc[i-1, "Equity Close"]
+            df_time_partition.loc[i, "Equity High"] = df_time_partition.loc[i-1, "Equity Close"]
+            df_time_partition.loc[i, "Equity Low"] = df_time_partition.loc[i-1, "Equity Close"]
+
+            df_time_partition.loc[i, "Used Margin Open"] = df_time_partition.loc[i-1, "Used Margin Close"]
+            df_time_partition.loc[i, "Used Margin Close"] = df_time_partition.loc[i-1, "Used Margin Close"]
+            df_time_partition.loc[i, "Used Margin High"] = df_time_partition.loc[i-1, "Used Margin Close"]
+            df_time_partition.loc[i, "Used Margin Low"] = df_time_partition.loc[i-1, "Used Margin Close"]
+
+            df_time_partition.loc[i, "Free Margin Open"] = df_time_partition.loc[i-1, "Free Margin Close"]
+            df_time_partition.loc[i, "Free Margin Close"] = df_time_partition.loc[i-1, "Free Margin Close"]
+            df_time_partition.loc[i, "Free Margin High"] = df_time_partition.loc[i-1, "Free Margin Close"]
+            df_time_partition.loc[i, "Free Margin Low"] = df_time_partition.loc[i-1, "Free Margin Close"]
+
+            df_time_partition.loc[i, "% Difference from Balance Open"] = df_time_partition.loc[i-1, "% Difference from Balance Close"]
+            df_time_partition.loc[i, "% Difference from Balance Close"] = df_time_partition.loc[i-1, "% Difference from Balance Close"]
+            df_time_partition.loc[i, "% Difference from Balance High"] = df_time_partition.loc[i-1, "% Difference from Balance Close"]
+            df_time_partition.loc[i, "% Difference from Balance Low"] = df_time_partition.loc[i-1, "% Difference from Balance Close"]
+
+            df_time_partition.loc[i, "% Difference from Equity Open"] = df_time_partition.loc[i-1, "% Difference from Equity Close"]
+            df_time_partition.loc[i, "% Difference from Equity Close"] = df_time_partition.loc[i-1, "% Difference from Equity Close"]
+            df_time_partition.loc[i, "% Difference from Equity High"] = df_time_partition.loc[i-1, "% Difference from Equity Close"]
+            df_time_partition.loc[i, "% Difference from Equity Low"] = df_time_partition.loc[i-1, "% Difference from Equity Close"]
     else:
-      # balance
-      df_time_partition["Balance Open"][i] = df_time_partition["Balance Close"][i-1]
-      df_time_partition["Balance Close"][i] = df_time_partition["Balance Close"][i-1]
-      df_time_partition["Balance High"][i] = df_time_partition["Balance Close"][i-1]
-      df_time_partition["Balance Low"][i] = df_time_partition["Balance Close"][i-1]
+        df_time_partition.loc[i, "Balance Open"] = time_partition_arraylist[i].iloc[0]["Balance"]
+        df_time_partition.loc[i, "Balance Close"] = time_partition_arraylist[i].iloc[-1]["Balance"]
+        df_time_partition.loc[i, "Balance High"] = time_partition_arraylist[i]["Balance"].max()
+        df_time_partition.loc[i, "Balance Low"] = time_partition_arraylist[i]["Balance"].min()
 
-      # equity
-      df_time_partition["Equity Open"][i] = df_time_partition["Equity Close"][i-1]
-      df_time_partition["Equity Close"][i] = df_time_partition["Equity Close"][i-1]
-      df_time_partition["Equity High"][i] = df_time_partition["Equity Close"][i-1]
-      df_time_partition["Equity Low"][i] = df_time_partition["Equity Close"][i-1]
+        df_time_partition.loc[i, "Equity Open"] = time_partition_arraylist[i].iloc[0]["Equity"]
+        df_time_partition.loc[i, "Equity Close"] = time_partition_arraylist[i].iloc[-1]["Equity"]
+        df_time_partition.loc[i, "Equity High"] = time_partition_arraylist[i]["Equity"].max()
+        df_time_partition.loc[i, "Equity Low"] = time_partition_arraylist[i]["Equity"].min()
 
-      # used margin
-      df_time_partition["Used Margin Open"][i] = df_time_partition["Used Margin Close"][i-1]
-      df_time_partition["Used Margin Close"][i] = df_time_partition["Used Margin Close"][i-1]
-      df_time_partition["Used Margin High"][i] = df_time_partition["Used Margin Close"][i-1]
-      df_time_partition["Used Margin Low"][i] = df_time_partition["Used Margin Close"][i-1]
+        df_time_partition.loc[i, "Used Margin Open"] = time_partition_arraylist[i].iloc[0]["Used Margin"]
+        df_time_partition.loc[i, "Used Margin Close"] = time_partition_arraylist[i].iloc[-1]["Used Margin"]
+        df_time_partition.loc[i, "Used Margin High"] = time_partition_arraylist[i]["Used Margin"].max()
+        df_time_partition.loc[i, "Used Margin Low"] = time_partition_arraylist[i]["Used Margin"].min()
 
-      # free margin
-      df_time_partition["Free Margin Open"][i] = df_time_partition["Free Margin Close"][i-1]
-      df_time_partition["Free Margin Close"][i] = df_time_partition["Free Margin Close"][i-1]
-      df_time_partition["Free Margin High"][i] = df_time_partition["Free Margin Close"][i-1]
-      df_time_partition["Free Margin Low"][i] = df_time_partition["Free Margin Close"][i-1]
+        df_time_partition.loc[i, "Free Margin Open"] = time_partition_arraylist[i].iloc[0]["Free Margin"]
+        df_time_partition.loc[i, "Free Margin Close"] = time_partition_arraylist[i].iloc[-1]["Free Margin"]
+        df_time_partition.loc[i, "Free Margin High"] = time_partition_arraylist[i]["Free Margin"].max()
+        df_time_partition.loc[i, "Free Margin Low"] = time_partition_arraylist[i]["Free Margin"].min()
 
-      # % Difference from Balance
-      df_time_partition["% Difference from Balance Open"][i] = df_time_partition["% Difference from Balance Close"][i-1]
-      df_time_partition["% Difference from Balance Close"][i] = df_time_partition["% Difference from Balance Close"][i-1]
-      df_time_partition["% Difference from Balance High"][i] = df_time_partition["% Difference from Balance Close"][i-1]
-      df_time_partition["% Difference from Balance Low"][i] = df_time_partition["% Difference from Balance Close"][i-1]
+        df_time_partition.loc[i, "% Difference from Balance Open"] = time_partition_arraylist[i].iloc[0]["% Difference from Balance"]
+        df_time_partition.loc[i, "% Difference from Balance Close"] = time_partition_arraylist[i].iloc[-1]["% Difference from Balance"]
+        df_time_partition.loc[i, "% Difference from Balance High"] = time_partition_arraylist[i]["% Difference from Balance"].max()
+        df_time_partition.loc[i, "% Difference from Balance Low"] = time_partition_arraylist[i]["% Difference from Balance"].min()
 
-      # % Difference from Equity
-      df_time_partition["% Difference from Equity Open"][i] = df_time_partition["% Difference from Equity Close"][i-1]
-      df_time_partition["% Difference from Equity Close"][i] = df_time_partition["% Difference from Equity Close"][i-1]
-      df_time_partition["% Difference from Equity High"][i] = df_time_partition["% Difference from Equity Close"][i-1]
-      df_time_partition["% Difference from Equity Low"][i] = df_time_partition["% Difference from Equity Close"][i-1]
+        df_time_partition.loc[i, "% Difference from Equity Open"] = time_partition_arraylist[i].iloc[0]["% Difference from Equity"]
+        df_time_partition.loc[i, "% Difference from Equity Close"] = time_partition_arraylist[i].iloc[-1]["% Difference from Equity"]
+        df_time_partition.loc[i, "% Difference from Equity High"] = time_partition_arraylist[i]["% Difference from Equity"].max()
+        df_time_partition.loc[i, "% Difference from Equity Low"] = time_partition_arraylist[i]["% Difference from Equity"].min()
 
 
-
-  else:
-    # balance
-    df_time_partition["Balance Open"][i] = time_partition_arraylist[i]["Balance"][time_partition_arraylist[i].index[0]]
-    df_time_partition["Balance Close"][i] = time_partition_arraylist[i]["Balance"][time_partition_arraylist[i].index[-1]]
-    df_time_partition["Balance High"][i] = time_partition_arraylist[i]["Balance"].max()
-    df_time_partition["Balance Low"][i] = time_partition_arraylist[i]["Balance"].min()
-
-    # equity
-    df_time_partition["Equity Open"][i] = time_partition_arraylist[i]["Equity"][time_partition_arraylist[i].index[0]]
-    df_time_partition["Equity Close"][i] = time_partition_arraylist[i]["Equity"][time_partition_arraylist[i].index[-1]]
-    df_time_partition["Equity High"][i] = time_partition_arraylist[i]["Equity"].max()
-    df_time_partition["Equity Low"][i] = time_partition_arraylist[i]["Equity"].min()
-
-    # used margin
-    df_time_partition["Used Margin Open"][i] = time_partition_arraylist[i]["Used Margin"][time_partition_arraylist[i].index[0]]
-    df_time_partition["Used Margin Close"][i] = time_partition_arraylist[i]["Used Margin"][time_partition_arraylist[i].index[-1]]
-    df_time_partition["Used Margin High"][i] = time_partition_arraylist[i]["Used Margin"].max()
-    df_time_partition["Used Margin Low"][i] = time_partition_arraylist[i]["Used Margin"].min()
-
-    # free margin
-    df_time_partition["Free Margin Open"][i] = time_partition_arraylist[i]["Free Margin"][time_partition_arraylist[i].index[0]]
-    df_time_partition["Free Margin Close"][i] = time_partition_arraylist[i]["Free Margin"][time_partition_arraylist[i].index[-1]]
-    df_time_partition["Free Margin High"][i] = time_partition_arraylist[i]["Free Margin"].max()
-    df_time_partition["Free Margin Low"][i] = time_partition_arraylist[i]["Free Margin"].min()
-
-    # difference from balance
-    df_time_partition["% Difference from Balance Open"][i] = time_partition_arraylist[i]["% Difference from Balance"][time_partition_arraylist[i].index[0]]
-    df_time_partition["% Difference from Balance Close"][i] = time_partition_arraylist[i]["% Difference from Balance"][time_partition_arraylist[i].index[-1]]
-    df_time_partition["% Difference from Balance High"][i] = time_partition_arraylist[i]["% Difference from Balance"].max()
-    df_time_partition["% Difference from Balance Low"][i] = time_partition_arraylist[i]["% Difference from Balance"].min()
-
-    # difference from equity
-    df_time_partition["% Difference from Equity Open"][i] = time_partition_arraylist[i]["% Difference from Equity"][time_partition_arraylist[i].index[0]]
-    df_time_partition["% Difference from Equity Close"][i] = time_partition_arraylist[i]["% Difference from Equity"][time_partition_arraylist[i].index[-1]]
-    df_time_partition["% Difference from Equity High"][i] = time_partition_arraylist[i]["% Difference from Equity"].max()
-    df_time_partition["% Difference from Equity Low"][i] = time_partition_arraylist[i]["% Difference from Equity"].min()
-
-    ## CandleStick Chart Output
-    df_balance = pd.DataFrame(index=range(len(time_partition_arraylist)))
+## CandleStick Chart Output
+print("Candlestick Chart Output")
+df_balance = pd.DataFrame(index=range(len(time_partition_arraylist)))
 df_equity = pd.DataFrame(index=range(len(time_partition_arraylist)))
 df_dfb = pd.DataFrame(index=range(len(time_partition_arraylist)))
 df_dfe = pd.DataFrame(index=range(len(time_partition_arraylist)))
@@ -379,22 +365,23 @@ df_equity.set_index("DateTime", inplace=True)
 df_dfb.set_index("DateTime", inplace=True)
 df_dfe.set_index("DateTime", inplace=True)
 
+
 mpf.plot(df_balance, type='candle', style='yahoo', tight_layout=True, title = output_title+ ' (Balance)', ylabel="Price/USD", figratio=(20,10), savefig=output_title+ ' (Balance)')
 mpf.plot(df_equity, type='candle', style='yahoo', tight_layout=True, title = output_title+ ' (Equity)', ylabel="Price/USD", figratio=(20,10), savefig=output_title+ ' (Equity)')
 mpf.plot(df_dfb, type='candle', style='yahoo', tight_layout=True, title = output_title+ ' (% Difference from Balance)', ylabel="% Change", figratio=(20,10), savefig=output_title+ ' (% Difference from Balance)')
 mpf.plot(df_dfe, type='candle', style='yahoo', tight_layout=True, title = output_title+ ' (% Difference from Equity)', ylabel="% Change", figratio=(20,10), savefig=output_title+ ' (% Difference from Equity)')
 
-
-plt.show()
+# plt.show() # no need to display this in python file. It will be displayed in the combined image
 
 df_time_partition.to_csv(output_filename_candlestick, index=False)
 
 # --------------------------------------------
 
 # Part 3: Combine Images in 2 x 2 Grid
+print("\nPart 3: Combine Images in 2 x 2 Grid")
 
 # Set the directory containing the PNG files
-input_directory = ""
+input_directory = "." # current directory
 
 # Set the output file name and path
 # output_file = "/content/combined.png"

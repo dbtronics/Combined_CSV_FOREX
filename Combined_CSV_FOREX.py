@@ -7,19 +7,22 @@ from datetime import datetime
 import os
 from PIL import Image
 
-# Load the configuration
-acct_id = '0385'
+# Get the configuration from user input
+acct_id = input("Enter account ID (default: '7194'): ") or '7194'
 
-start_year = 2025
-end_year = 2025
+start_year = int(input("Enter start year (default: 2025): ") or 2025)
+end_year = int(input("Enter end year (default: 2025): ") or 2025)
 
-start_month = 3
-end_month = 3
+start_month = int(input("Enter start month (default: 3): ") or 3)
+end_month = int(input("Enter end month (default: 3): ") or 3)
 
-start_day = 3
-end_day = 7
+start_day = int(input("Enter start day (default: 1): ") or 1)
+end_day = int(input("Enter end day (default: 7): ") or 7)
 
-period_string = "Weekly"
+period_string = input("Enter period string (default: 'Weekly'): ") or 'Weekly'
+
+# Get the time frequency from user input
+time_frequency = input("Enter time frequency (default: '2h') \n(e.g., '5min', '15min', '30min', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M'): ") or '2h'
 
 start_date = datetime(start_year, start_month, start_day)
 end_date = datetime(end_year, end_month, end_day)
@@ -38,8 +41,6 @@ internal_foldername = str(acct_id)+"_data"
 print(internal_foldername)
 
 # this data is for candlestick chart pattern
-# different options for time intervals are: "5min", "15min", "30min", "1h", "2h", "4h", "6h", "8h", "12h", "1d", "3d", "1w", "1M")
-time_frequency = "2h" # hourly specify 
 output_title = str(acct_id)+"_"+str(period_string)+"_Performance("+date_extraction[0]+"-"+date_extraction[-1]+")"
 output_filename_candlestick = str(acct_id)+"_"+str(period_string)+"_Performance("+date_extraction[0]+"-"+date_extraction[-1]+")_Candlestick_Pattern.csv"
 print(output_filename_candlestick)

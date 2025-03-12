@@ -95,44 +95,44 @@ for df in df_list:
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
 
-df["Starting Day Balance"] = df["Balance"][0]
-df["Starting Day Equity"] = df["Equity"][0]
+    df["Starting Day Balance"] = df["Balance"][0]
+    df["Starting Day Equity"] = df["Equity"][0]
 
-# Before calculations, if there is a big change in balance (withdrawn or balance changed by user) then change starting day balance and equity accordingly
-prev_row = [0.0 for i in range(len(df)-1)]
-current_row = [0.0 for i in range(len(df)-1)]
-diff_row = [0.0 for i in range(len(df))] # current row - prev row
-diff_percentage_row = [0.0 for i in range(len(df))]
-big_change_row = [False for i in range(len(df))]
+    # Before calculations, if there is a big change in balance (withdrawn or balance changed by user) then change starting day balance and equity accordingly
+    prev_row = [0.0 for i in range(len(df)-1)]
+    current_row = [0.0 for i in range(len(df)-1)]
+    diff_row = [0.0 for i in range(len(df))] # current row - prev row
+    diff_percentage_row = [0.0 for i in range(len(df))]
+    big_change_row = [False for i in range(len(df))]
 
-prev_row = df["Balance"][:-1]
-current_row = df["Balance"][1:]
+    prev_row = df["Balance"][:-1]
+    current_row = df["Balance"][1:]
 
-prev_row.reset_index(drop = True)
-current_row.reset_index(drop = True)
+    prev_row.reset_index(drop = True)
+    current_row.reset_index(drop = True)
 
-prev_row = np.array(prev_row)
-current_row = np.array(current_row)
-diff_row = np.array(diff_row)
-diff_row[1:] = np.abs(current_row - prev_row)
-diff_percentage_row[1:] = diff_row[1:]/prev_row
+    prev_row = np.array(prev_row)
+    current_row = np.array(current_row)
+    diff_row = np.array(diff_row)
+    diff_row[1:] = np.abs(current_row - prev_row)
+    diff_percentage_row[1:] = diff_row[1:]/prev_row
 
-diff_percentage_row = np.array(diff_percentage_row)
-big_change_row = np.array(big_change_row)
-big_change_row = diff_percentage_row > diff_percentage
+    diff_percentage_row = np.array(diff_percentage_row)
+    big_change_row = np.array(big_change_row)
+    big_change_row = diff_percentage_row > diff_percentage
 
-indices_change = np.argwhere(big_change_row)
-indices_change = np.array(indices_change).reshape(-1,)
-indices_change = np.sort(indices_change)
-for index in indices_change:
-    df["Starting Day Balance"][index:] = df["Balance"][index]
-    df["Starting Day Equity"][index:] = df["Equity"][index]
+    indices_change = np.argwhere(big_change_row)
+    indices_change = np.array(indices_change).reshape(-1,)
+    indices_change = np.sort(indices_change)
+    for index in indices_change:
+        df["Starting Day Balance"][index:] = df["Balance"][index]
+        df["Starting Day Equity"][index:] = df["Equity"][index]
 
-# Adding new columns to it
-df["% Difference from Balance"] = (df["Equity"] - df["Starting Day Balance"])/df["Starting Day Balance"]
-df["% Difference from Equity"] = (df["Equity"] - df["Starting Day Equity"])/df["Starting Day Equity"]
+    # Adding new columns to it
+    df["% Difference from Balance"] = (df["Equity"] - df["Starting Day Balance"])/df["Starting Day Balance"]
+    df["% Difference from Equity"] = (df["Equity"] - df["Starting Day Equity"])/df["Starting Day Equity"]
 
-df_list_updated.append(df)
+    df_list_updated.append(df)
 
 
 df = pd.concat(df_list_updated, ignore_index=True)
